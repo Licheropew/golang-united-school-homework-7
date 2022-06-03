@@ -107,4 +107,3 @@ func (m *Matrix) Set(row, col, value int) bool {
 	m.data[row*m.cols+col] = value
 	return true
 }
-

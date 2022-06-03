@@ -28,23 +28,23 @@ func TestMain(m *testing.M) {
 }
 
 func TestLenPeople(t *testing.T) {
-	tests := map[string]struct{
-		input People
+	tests := map[string]struct {
+		input  People
 		output int
 	}{
 		"Empty": {People{}, 0},
 		"One": {People{
 			{firstName: "Anton", lastName: "A"},
-			}, 1},
+		}, 1},
 		"Two": {People{
-			{firstName: "Anton", lastName: "A"}, 
+			{firstName: "Anton", lastName: "A"},
 			{firstName: "Anton", lastName: "B"},
-			}, 2},
+		}, 2},
 		"Three": {People{
-			{firstName: "Anton", lastName: "A"}, 
-			{firstName: "Anton", lastName: "B"}, 
+			{firstName: "Anton", lastName: "A"},
+			{firstName: "Anton", lastName: "B"},
 			{firstName: "Anton", lastName: "C"},
-			}, 3},
+		}, 3},
 	}
 	for testName, testCase := range tests {
 		t.Run(testName, func(t *testing.T) {
@@ -58,38 +58,38 @@ func TestLenPeople(t *testing.T) {
 
 func TestLessPeople(t *testing.T) {
 	birthday := time.Date(1990, 3, 22, 0, 0, 0, 0, time.UTC)
-	tests := map[string]struct{
-		input People
+	tests := map[string]struct {
+		input  People
 		output bool
-		i, j int
+		i, j   int
 	}{
 		"Birthday and first name even, last name i < j": {People{
-			{firstName: "Anton", lastName: "A", birthDay: birthday}, 
+			{firstName: "Anton", lastName: "A", birthDay: birthday},
 			{firstName: "Anton", lastName: "B", birthDay: birthday},
-			}, true, 0, 1},
+		}, true, 0, 1},
 		"Birthday and first name even, last name i > j": {People{
-			{firstName: "Anton", lastName: "A", birthDay: birthday}, 
+			{firstName: "Anton", lastName: "A", birthDay: birthday},
 			{firstName: "Anton", lastName: "B", birthDay: birthday},
-			}, false, 1, 0},
+		}, false, 1, 0},
 		"Birthday, first and last name even (i==j)": {People{
-			{firstName: "Anton", lastName: "A", birthDay: birthday}, 
-			}, false, 0, 0},
+			{firstName: "Anton", lastName: "A", birthDay: birthday},
+		}, false, 0, 0},
 		"Birthday even, first name i < j": {People{
-			{firstName: "Anton", birthDay: birthday}, 
+			{firstName: "Anton", birthDay: birthday},
 			{firstName: "Notna", birthDay: birthday},
-			}, true, 0, 1},
+		}, true, 0, 1},
 		"Birthday even, first name i > j": {People{
-			{firstName: "Anton", birthDay: birthday}, 
+			{firstName: "Anton", birthDay: birthday},
 			{firstName: "Notna", birthDay: birthday},
-			}, false, 1, 0},
+		}, false, 1, 0},
 		"Birthday i > j": {People{
-			{firstName: "Anton", birthDay: birthday.AddDate(0, 1, 0)}, 
+			{firstName: "Anton", birthDay: birthday.AddDate(0, 1, 0)},
 			{firstName: "Notna", birthDay: birthday},
-			}, true, 0, 1},
+		}, true, 0, 1},
 		"Birthday i < j": {People{
-			{firstName: "Anton", birthDay: birthday.AddDate(0, 1, 0)}, 
+			{firstName: "Anton", birthDay: birthday.AddDate(0, 1, 0)},
 			{firstName: "Notna", birthDay: birthday},
-			}, false, 1, 0},
+		}, false, 1, 0},
 	}
 	for testName, testCase := range tests {
 		t.Run(testName, func(t *testing.T) {
@@ -102,27 +102,27 @@ func TestLessPeople(t *testing.T) {
 }
 
 func TestSwapFunc(t *testing.T) {
-	tests := map[string]struct{
-		input People
+	tests := map[string]struct {
+		input  People
 		output People
-		i, j int
+		i, j   int
 	}{
 		"Positive case": {
 			People{
-				{firstName: "Anton", lastName: "A"}, 
+				{firstName: "Anton", lastName: "A"},
 				{firstName: "Anton", lastName: "B"},
 			},
 			People{
-				{firstName: "Anton", lastName: "B"}, 
+				{firstName: "Anton", lastName: "B"},
 				{firstName: "Anton", lastName: "A"},
 			}, 0, 1},
 		"Case where i==j": {
 			People{
-				{firstName: "Anton", lastName: "A"}, 
+				{firstName: "Anton", lastName: "A"},
 				{firstName: "Anton", lastName: "B"},
 			},
 			People{
-				{firstName: "Anton", lastName: "A"}, 
+				{firstName: "Anton", lastName: "A"},
 				{firstName: "Anton", lastName: "B"},
 			}, 0, 0},
 	}
@@ -140,6 +140,33 @@ func TestSwapFunc(t *testing.T) {
 				if testCase.input[testCase.i] != testCase.output[testCase.j] {
 					t.Errorf("swap func goes wrong, expect %v, got %v", testCase.output[testCase.j], testCase.input[testCase.i])
 				}
+			}
+		})
+	}
+}
+
+func TestNewMatrix(t *testing.T) {
+	tests := map[string]struct {
+		input  string
+		output *Matrix
+		err    error
+	}{
+		"Positive case": {input: "1 2 3 4 5", output: &Matrix{rows: 1, cols: 5, data: []int{1, 2, 3, 4, 5}}, err: nil},
+	}
+	for testName, testCase := range tests {
+		t.Run(testName, func(t *testing.T) {
+			res, err := New(testCase.input)
+			if err != testCase.err {
+				t.Errorf("error returned while not awaited: %s", err.Error())
+			}
+			if res.cols != testCase.output.cols {
+				t.Errorf("cols: got: %v, want %v", res.cols, testCase.output.cols)
+			}
+			if res.rows != testCase.output.rows {
+				t.Errorf("rows: got: %v, want %v", res.rows, testCase.output.rows)
+			}
+			if len(res.data) != len(testCase.output.data) {
+				t.Errorf("rows: got: %v with len %d, want %v with len %d", res.data, len(res.data), testCase.output.data, len(testCase.output.data))
 			}
 		})
 	}

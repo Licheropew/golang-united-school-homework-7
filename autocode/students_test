@@ -144,3 +144,30 @@ func TestSwapFunc(t *testing.T) {
 		})
 	}
 }
+
+func TestNewMatrix(t *testing.T) {
+	tests := map[string]struct{
+		input string
+		output *Matrix
+		err error
+	}{
+		"Positive case": {input: "1 2 3 4 5", output: &Matrix{rows: 1, cols: 5, data: []int{1,2,3,4,5}}, err: nil},
+	}
+	for testName, testCase := range tests {
+		t.Run(testName, func(t *testing.T) {
+			res, err := New(testCase.input)
+			if err != testCase.err {
+				t.Errorf("error returned while not awaited: %s", err.Error())
+			}
+			if res.cols != testCase.output.cols {
+				t.Errorf("cols: got: %v, want %v", res.cols, testCase.output.cols)
+			}
+			if res.rows != testCase.output.rows {
+				t.Errorf("rows: got: %v, want %v", res.rows, testCase.output.rows)
+			}
+			if len(res.data) != len(testCase.output.data) {
+				t.Errorf("rows: got: %v with len %d, want %v with len %d", res.data, len(res.data), testCase.output.data, len(testCase.output.data))
+			}
+		})
+	}
+}
