@@ -1,8 +1,10 @@
 package coverage
 
 import (
+	"errors"
 	"log"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -146,28 +148,48 @@ func TestSwapFunc(t *testing.T) {
 }
 
 func TestNewMatrix(t *testing.T) {
+	var tErr error = errors.New("Rows need to be the same length")
+	var numError *strconv.NumError
 	tests := map[string]struct {
 		input  string
 		output *Matrix
 		err    error
+		atoiErr bool
 	}{
-		"Positive case": {input: "1 2 3 4 5", output: &Matrix{rows: 1, cols: 5, data: []int{1, 2, 3, 4, 5}}, err: nil},
+		"Positive case, one row": {input: "1 2 3 4 5", output: &Matrix{rows: 1, cols: 5, data: []int{1, 2, 3, 4, 5}}, err: nil},
+		"Positive case, three rows": {input: "1 2 3\n1 2 3\n1 2 3", output: &Matrix{rows: 3, cols: 3, data: []int{1, 2, 3, 1, 2, 3, 1, 2, 3}}, err: nil},
+		"Positive case, five rows": {input: "1\n1\n1\n1\n1", output: &Matrix{rows: 5, cols: 1, data: []int{1, 1, 1, 1, 1}}, err: nil},
+		"Empty string": {input: "", output: nil, err: numError, atoiErr: true},
+		"String with letters": {input: "1 2 3 4 a", output: nil, err: numError, atoiErr: true},
+		"Different cols": {input: "1 2 3\n1 2", output: nil, err: tErr},
 	}
 	for testName, testCase := range tests {
 		t.Run(testName, func(t *testing.T) {
 			res, err := New(testCase.input)
-			if err != testCase.err {
-				t.Errorf("error returned while not awaited: %s", err.Error())
-			}
-			if res.cols != testCase.output.cols {
-				t.Errorf("cols: got: %v, want %v", res.cols, testCase.output.cols)
-			}
-			if res.rows != testCase.output.rows {
-				t.Errorf("rows: got: %v, want %v", res.rows, testCase.output.rows)
-			}
-			if len(res.data) != len(testCase.output.data) {
-				t.Errorf("rows: got: %v with len %d, want %v with len %d", res.data, len(res.data), testCase.output.data, len(testCase.output.data))
-			}
+			if testCase.err != nil {
+				if testCase.atoiErr {
+					if !errors.As(err, &numError) {
+						t.Errorf("returned wrong error type: got %T, want %T", err, testCase.err)
+					}
+				} else {
+					if err.Error() != testCase.err.Error() {
+						t.Errorf("returned wrong error: got %s, want %s", err, testCase.err)
+					}
+				}
+			} else {
+				if len(res.data) != len(testCase.output.data) {
+					t.Errorf("rows: got: %v with len %d, want %v with len %d", res.data, len(res.data), testCase.output.data, len(testCase.output.data))
+				}
+				if err != nil {
+					t.Errorf("error returned while not awaited: %s", err.Error())
+				}
+				if res.rows != testCase.output.rows {
+					t.Errorf("rows: got: %v, want %v", res.rows, testCase.output.rows)
+				}
+				if res.cols != testCase.output.cols {
+					t.Errorf("cols: got: %v, want %v", res.cols, testCase.output.cols)
+				}
+			}			
 		})
 	}
 }
