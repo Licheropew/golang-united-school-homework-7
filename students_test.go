@@ -193,3 +193,80 @@ func TestNewMatrix(t *testing.T) {
 		})
 	}
 }
+
+func TestMatrixRows(t *testing.T) {
+	tests := map[string]struct{
+		input Matrix
+		output [][]int
+	}{
+		"Positive case 2 rows, 2 cols": {input: Matrix{rows: 2, cols: 2, data: []int{1, 2, 3, 4}}, output: [][]int{{1, 2}, {3,4}}},
+		"Positive case 5 rows, 1 cols": {input: Matrix{rows: 5, cols: 1, data: []int{1, 2, 3, 4, 5}}, output: [][]int{{1}, {2}, {3}, {4}, {5}}},
+		"Positive case 1 row, 1 col": {input: Matrix{rows: 1, cols: 1, data: []int{1}}, output: [][]int{{1}}},
+	}
+	for testName, testCase := range tests {
+		t.Run(testName, func(t *testing.T) {
+			res := testCase.input.Rows()
+			for r := 0; r < testCase.input.rows; r++ {
+				for c := 0; c < testCase.input.cols; c++ {
+					if res[r][c] != testCase.output[r][c] {
+						t.Errorf("values not match. got %v, want %v", res, testCase.output)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestMatrixCols(t *testing.T) {
+	tests := map[string]struct{
+		input Matrix
+		output [][]int
+	}{
+		"Positive case 2 rows, 2 cols": {input: Matrix{rows: 2, cols: 2, data: []int{1, 2, 3, 4}}, output: [][]int{{1, 3}, {2, 4}}},
+		"Positive case 5 rows, 1 cols": {input: Matrix{rows: 5, cols: 1, data: []int{1, 2, 3, 4, 5}}, output: [][]int{{1, 2, 3, 4, 5}}},
+		"Positive case 1 row, 1 col": {input: Matrix{rows: 1, cols: 1, data: []int{1}}, output: [][]int{{1}}},
+	}
+	for testName, testCase := range tests {
+		t.Run(testName, func(t *testing.T) {
+			res := testCase.input.Cols()
+			for c := 0; c < testCase.input.cols; c++ {
+				for r := 0; r < testCase.input.rows; r++ {
+					if res[c][r] != testCase.output[c][r] {
+						t.Errorf("values not match. got %v, want %v", res, testCase.output)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestMatrixSet(t *testing.T) {
+	mMatrix := Matrix{rows: 2, cols: 2, data: []int{1, 2, 3, 4}}
+	tests := map[string]struct{
+		input *Matrix
+		output bool
+		row, col, value, index int
+	}{
+		"False case m.rows < col": {input: &mMatrix, output: false, col: 3},
+		"False case m.cols < row": {input: &mMatrix, output: false, row: 3},
+		"False case: m.rows=row": {input: &mMatrix, output: false, row: 2, col: 4},
+		"False case: m.cols=col": {input: &mMatrix, output: false, row: 4, col: 2},
+		"False case: negative row": {input: &mMatrix, output: false, row: -1},
+		"False case: negative col": {input: &mMatrix, output: false, col: -1},
+		"Positive case: row=1, col=1, value=0": {input: &mMatrix, output: true, row: 1, col: 1, index: 3},
+		"Positive case: row=0, col=0, value=10": {input: &mMatrix, output: true, value: 10},
+	}
+	for testName, testCase := range tests {
+		t.Run(testName, func(t *testing.T) {
+			res := testCase.input.Set(testCase.row, testCase.col, testCase.value)
+			if res != testCase.output {
+				t.Errorf("not expect this result, got %v, want %v", res, testCase.output)
+			}
+			if res {
+				if testCase.value != testCase.input.data[testCase.index] {
+					t.Errorf("set works wrong, want %d, got %d", testCase.value, testCase.input.data[testCase.index])
+				}
+			}
+		})
+	}
+}
